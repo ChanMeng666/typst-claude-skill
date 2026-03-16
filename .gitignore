@@ -1,0 +1,5 @@
+*.pdf
+*.png
+*.svg
+.DS_Store
+Thumbs.db
