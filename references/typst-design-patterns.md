@@ -171,6 +171,85 @@ Use `typst fonts --font-path ./fonts` to verify fonts are discovered.
 
 ---
 
+## Conditional Rendering (PDF vs HTML)
+
+Use `target()` to produce format-specific output:
+
+```typst
+#let note(body) = {
+  if target() == "html" {
+    // HTML: semantic element
+    html.elem("div", attrs: (class: "note"), body)
+  } else {
+    // PDF: styled block
+    block(fill: luma(240), inset: 10pt, radius: 4pt)[*Note:* #body]
+  }
+}
+```
+
+---
+
+## Responsive Layout with `layout()`
+
+Adapt content based on available width:
+
+```typst
+#let responsive-columns(body) = layout(size => {
+  if size.width > 400pt {
+    columns(2, gutter: 12pt, body)
+  } else {
+    body
+  }
+})
+```
+
+---
+
+## Common Compiler Error Patterns
+
+| Error message pattern | Cause | Fix |
+|---|---|---|
+| `unknown variable: foo` | Misspelled function or missing import | Check spelling; add `#import` |
+| `expected X, found Y` | Type mismatch (e.g., string vs content) | Wrap in `[]` for content or use `str()` for string |
+| `can only be used when context is known` | Using counter/state outside `context` | Wrap in `context { ... }` |
+| `unexpected end of block comment` | Unclosed `/*` | Close with `*/` |
+| `cannot mutate a captured variable` | Modifying outer variable in closure | Use `state()` instead |
+| `duplicate key` | Repeated dictionary key | Remove duplicate or rename |
+| `file not found` | Wrong path or missing file | Use forward slashes, check relative path from project root |
+| `unknown font family` | Font not available on system | Run `typst fonts` to list available; use `--font-path` |
+
+---
+
+## Advanced Counter Patterns
+
+Auto-numbering custom elements (theorems, definitions, etc.):
+
+```typst
+#let theorem-counter = counter("theorem")
+#let theorem(body) = {
+  theorem-counter.step()
+  block(fill: luma(240), inset: 10pt, width: 100%, radius: 4pt)[
+    *Theorem #context theorem-counter.display().* #body
+  ]
+}
+
+#theorem[Every even integer greater than 2 is the sum of two primes.]
+#theorem[There are infinitely many prime numbers.]
+```
+
+---
+
+## Tiling (Repeating Pattern Fills)
+
+```typst
+#let dots = tiling(size: (10pt, 10pt))[
+  #place(center + horizon, circle(radius: 1.5pt, fill: gray))
+]
+#rect(width: 100pt, height: 50pt, fill: dots)
+```
+
+---
+
 ## PDF Output Capabilities
 
 Typst's PDF backend (powered by `pdf-writer`) supports:

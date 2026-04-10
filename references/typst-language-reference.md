@@ -234,8 +234,23 @@ $ "if" x > 0 $
 
 // Bold and other variants
 $ bold(A) dot bold(x) = bold(b) $
+
+// Script styles
 $ cal(L) $          // calligraphic
 $ bb(R) $           // blackboard bold
+$ scr(H) $          // script
+$ frak(A) $         // fraktur
+
+// Size overrides (force display/inline style)
+$ display(sum_(k=1)^n k) $   // force display style in inline context
+$ inline(sum) $               // force inline style in display context
+
+// Cancel (cross out terms in derivations)
+$ a + cancel(b) - cancel(b) = a $
+
+// Norm and abs as dedicated elements
+$ norm(bold(v)) $
+$ abs(x - y) $
 
 // Greek letters
 $ alpha, beta, gamma, delta, epsilon $
@@ -350,6 +365,29 @@ See @einstein.
 ]
 ```
 
+### Transforms
+
+```typst
+#rotate(15deg)[Rotated text]
+#scale(x: 150%, y: 100%)[Stretched horizontally]
+#skew(ax: 10deg)[Skewed text]
+```
+
+### Measure and Layout
+
+```typst
+// Get the size of content
+context {
+  let size = measure[Hello, World!]
+  [Width: #size.width, Height: #size.height]
+}
+
+// Respond to available space
+layout(size => {
+  if size.width > 300pt [Wide layout] else [Narrow layout]
+})
+```
+
 ### Padding
 
 ```typst
@@ -413,10 +451,18 @@ color.hsl(0deg, 100%, 50%)
 color.hsv(120deg, 100%, 100%)
 oklch(70%, 0.15, 200deg)
 
+// Perceptually uniform color spaces
+oklab(70%, 0.1, -0.1)
+oklch(70%, 0.15, 200deg)
+
 // Color operations
 red.lighten(20%)
 blue.darken(30%)
 green.transparentize(50%)
+red.opacify(50%)               // opposite of transparentize
+blue.saturate(20%)
+green.desaturate(30%)
+red.negate()
 color.mix(red, blue)
 
 // Gradients
@@ -436,6 +482,10 @@ gradient.conic(red, yellow, green, blue)
 #let count = 42
 #let items = (1, 2, 3)
 #let info = (name: "Alice", age: 30)
+
+// Destructuring
+#let (a, b, c) = (1, 2, 3)
+#let (name: n, age: a) = (name: "Alice", age: 30)
 ```
 
 ### Functions
@@ -497,6 +547,9 @@ gradient.conic(red, yellow, green, blue)
 #arr.rev()          // reversed copy
 #arr.enumerate()    // ((0,1), (1,2), ...)
 #arr.zip(other)     // pair elements
+#arr.chunks(2)      // ((1,2), (3,4), (5,))
+#arr.windows(3)     // ((1,2,3), (2,3,4), (3,4,5))
+#arr.intersperse(0) // (1, 0, 2, 0, 3, 0, 4, 0, 5)
 ```
 
 ### Dictionaries
@@ -524,6 +577,8 @@ gradient.conic(red, yellow, green, blue)
 #lower(s)
 #s.replace("World", "Typst")
 #s.slice(0, 5)
+#s.rev()            // "!dlroW ,olleH"
+#s.codepoints()     // individual Unicode codepoints
 ```
 
 ### Type checking and casting
@@ -534,6 +589,11 @@ gradient.conic(red, yellow, green, blue)
 #int("42")      // parse string to int
 #float("3.14")  // parse string to float
 #str(42)        // int to string
+#decimal("3.14159")  // precise decimal (no floating-point error)
+
+// Evaluate a string as Typst code
+#eval("1 + 2")                    // 3
+#eval("$ x^2 $", mode: "markup")  // renders math
 ```
 
 ---
@@ -595,6 +655,19 @@ set align(center) if not "align-gutter" in theme
 
 // Replace text patterns
 #show "LaTeX": [La#h(-.12em)#text(size: .8em, baseline: -.2em)[T]#h(-.08em)E#h(-.12em)X]
+```
+
+### Selector combinators
+
+```typst
+// Filter by field value
+#show heading.where(level: 1): set text(fill: blue)
+
+// Union: apply one rule to multiple selectors
+#show heading.where(level: 1).or(heading.where(level: 2)): set text(font: "Georgia")
+
+// Where with multiple conditions
+#show raw.where(block: true): block.with(fill: luma(240), inset: 10pt, radius: 4pt)
 ```
 
 ### Scope-based show rules
@@ -774,6 +847,13 @@ Install by importing: `#import "@preview/package:version": ...`
 
 // Typst version
 #sys.version
+
+// Detect export target for conditional rendering
+#if target() == "html" {
+  [HTML-specific content]
+} else {
+  [PDF-specific content]
+}
 ```
 
 ---

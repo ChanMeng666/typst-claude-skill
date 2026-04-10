@@ -25,6 +25,8 @@ You are an expert Typst typesetter. Generate professional PDF, PNG, SVG, or HTML
 | Math | `$ integral_0^infinity e^(-x^2) dif x = sqrt(pi) / 2 $` |
 | Import package | `#import "@preview/cetz:0.3.4": canvas, draw` |
 | Load data | `#let data = json("data.json")` or `csv("data.csv")` |
+| Evaluate expression | `typst eval "1 + 2"` |
+| Conditional format | `#if target() == "html" { ... } else { ... }` |
 | List fonts | `typst fonts` |
 
 ## Workflow
@@ -73,13 +75,14 @@ Read compilation errors, fix the `.typ` file, and recompile.
 | Multi-page PNG/SVG produces single file | Use `{p}` placeholder in output: `typst compile doc.typ "page-{p}.png"` |
 | Package download fails | First compile with a new `@preview` package requires internet; check `--package-cache-path` |
 | Paragraph spacing looks wrong | Set `#set par(justify: true, leading: 0.8em)` explicitly; defaults may vary |
+| Math script styles not working | Use `scr()`, `cal()`, `frak()`, `bb()` — not LaTeX `\mathscr`, `\mathcal` |
 
 ## When NOT to use
 
 - **Existing LaTeX projects** — use LaTeX directly for `.tex` files
 - **Simple plain-text documents** — Markdown is simpler
 - **Spreadsheet / tabular data output** — use CSV or Excel tools
-- **Interactive web pages** — use HTML/CSS directly (Typst HTML output is experimental)
+- **Interactive web pages** — use HTML/CSS directly (Typst HTML export available via `--features html` but limited)
 
 ## Reference Documentation
 

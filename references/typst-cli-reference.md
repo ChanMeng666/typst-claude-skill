@@ -105,6 +105,45 @@ typst watch paper.typ
 
 # Watch with live HTML preview
 typst watch paper.typ output.html --features html
+
+# Watch with HTTP server and auto-open browser
+typst watch paper.typ --open
+```
+
+---
+
+## `typst eval`
+
+Evaluate a Typst expression and print the result.
+
+```bash
+typst eval [OPTIONS] <INPUT>
+```
+
+- `<INPUT>` — Expression string or path to `.typ` file.
+
+| Option | Description |
+|--------|-------------|
+| `--format <json\|yaml>` | Output format |
+| `--pretty` | Pretty-print output |
+| `--mode <code\|markup\|math>` | Expression mode (default: code) |
+
+Plus all shared compilation options (`--root`, `--input`, `--font-path`, etc.)
+
+### Examples
+
+```bash
+# Evaluate an expression
+typst eval "1 + 2"
+
+# Evaluate markup
+typst eval --mode markup "= Hello"
+
+# Evaluate from a file
+typst eval expressions.typ
+
+# Pretty-print JSON output
+typst eval --pretty --format json "range(5)"
 ```
 
 ---
@@ -172,6 +211,32 @@ typst query paper.typ "<abstract>" --one --pretty
 
 # Extract title field from metadata
 typst query paper.typ "metadata" --field value --one
+```
+
+---
+
+## `typst packages`
+
+List installed packages and manage the package cache.
+
+```bash
+typst packages list [OPTIONS]
+typst packages clean [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--package-path <DIR>` | Custom local packages path |
+| `--package-cache-path <DIR>` | Custom package cache path |
+
+### Examples
+
+```bash
+# List all installed packages
+typst packages list
+
+# Clean the package cache
+typst packages clean
 ```
 
 ---
