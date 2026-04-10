@@ -1,25 +1,31 @@
 ---
 name: typst
 description: >
-  Generate professional PDF documents using Typst typesetting system.
   Use when user asks to create PDF, write documents, generate reports,
-  typeset papers, create presentations, or any document generation task.
+  typeset papers, create presentations, make resumes, invoices, letters,
+  or any document generation task.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
 # Typst Document Generation Skill
 
-You are an expert Typst typesetter. Use Typst to generate professional PDF, PNG, SVG, or HTML documents.
+You are an expert Typst typesetter. Generate professional PDF, PNG, SVG, or HTML documents using Typst.
 
-## When to activate
+## Quick Reference
 
-Activate when the user asks to:
-- Create or generate a PDF document
-- Write a report, paper, thesis, or article
-- Create a resume / CV
-- Generate a presentation or slides-style document
-- Typeset mathematical formulas or equations
-- Create any formatted document (letter, invoice, certificate, etc.)
+| Task | Code / Command |
+|------|---------------|
+| Compile to PDF | `typst compile doc.typ` |
+| Compile to PNG | `typst compile doc.typ --format png --ppi 300` |
+| Compile & open | `typst compile doc.typ --open` |
+| Set page | `#set page(paper: "a4", margin: 2.5cm)` |
+| Set font | `#set text(font: "Linux Libertine", size: 11pt)` |
+| CJK font | `#set text(lang: "zh", font: ("Source Han Serif SC", "SimSun", "Microsoft YaHei"))` |
+| Heading | `= Title` / `== Subtitle` / `=== Sub-subtitle` |
+| Math | `$ integral_0^infinity e^(-x^2) dif x = sqrt(pi) / 2 $` |
+| Import package | `#import "@preview/cetz:0.3.4": canvas, draw` |
+| Load data | `#let data = json("data.json")` or `csv("data.csv")` |
+| List fonts | `typst fonts` |
 
 ## Workflow
 
@@ -29,198 +35,68 @@ Activate when the user asks to:
 typst --version
 ```
 
-If not available, instruct the user to install:
-```bash
-winget install --id Typst.Typst   # Windows
-brew install typst                 # macOS
-cargo install typst-cli            # Any platform with Rust
-```
+If not installed, instruct the user:
+- Windows: `winget install --id Typst.Typst`
+- macOS: `brew install typst`
+- Any platform: `cargo install typst-cli`
 
 ### 2. Create the `.typ` source file
 
-- Choose an appropriate template from `references/typst-templates.md`
-- Consult `references/typst-language-reference.md` for syntax details
+- Choose a template from `references/typst-templates.md`
+- Consult `references/typst-language-reference.md` for syntax
+- For advanced layouts, see `references/typst-design-patterns.md`
 - Write the `.typ` file to the user's desired location
 
 ### 3. Compile to output
 
 ```bash
-typst compile document.typ                          # Default: PDF
+typst compile document.typ                          # PDF (default)
 typst compile document.typ --format png --ppi 300   # High-res PNG
 typst compile document.typ output.svg               # SVG
-typst compile document.typ --open                   # Compile and open
 ```
 
-See `references/typst-cli-reference.md` for all CLI options.
+See `references/typst-cli-reference.md` for all options.
 
 ### 4. Iterate
 
-If compilation fails, read the error output, fix the `.typ` file, and recompile.
+Read compilation errors, fix the `.typ` file, and recompile.
 
-## Key best practices
+## Gotchas / Common Mistakes
 
-### Chinese / CJK documents
+| Mistake | Fix |
+|---------|-----|
+| CJK glyphs missing or tofu (□) | MUST set `lang` AND provide a CJK font fallback chain: `#set text(lang: "zh", font: ("Source Han Serif SC", "SimSun"))` |
+| Windows path errors in `#image()` / `#include()` | Use forward slashes: `image("images/photo.jpg")`, not backslashes |
+| Font not found | Run `typst fonts` to list available fonts; bundle custom fonts with `--font-path ./fonts` |
+| `context` errors in Typst v0.14+ | Accessing `counter()`, `state()`, or `text.fill` requires wrapping in a `context` block |
+| `show` rules leaking to other sections | Wrap scoped show rules in a block `{ ... }` to limit their effect |
+| Multi-page PNG/SVG produces single file | Use `{p}` placeholder in output: `typst compile doc.typ "page-{p}.png"` |
+| Package download fails | First compile with a new `@preview` package requires internet; check `--package-cache-path` |
+| Paragraph spacing looks wrong | Set `#set par(justify: true, leading: 0.8em)` explicitly; defaults may vary |
 
-Always set the text language and use a CJK-capable font:
+## When NOT to use
 
-```typst
-#set text(lang: "zh", font: ("Source Han Serif SC", "SimSun", "Microsoft YaHei"))
-#set page(paper: "a4")
-```
+- **Existing LaTeX projects** — use LaTeX directly for `.tex` files
+- **Simple plain-text documents** — Markdown is simpler
+- **Spreadsheet / tabular data output** — use CSV or Excel tools
+- **Interactive web pages** — use HTML/CSS directly (Typst HTML output is experimental)
 
-### Document structure
+## Reference Documentation
 
-Use `set` rules at the top for global configuration, then write content:
+Read these files on demand (not all at once):
 
-```typst
-#set page(paper: "a4", margin: 2.5cm)
-#set text(font: "Linux Libertine", size: 11pt)
-#set heading(numbering: "1.1")
-#set par(justify: true, leading: 0.8em)
+| Reference | Path | Content |
+|-----------|------|---------|
+| CLI Reference | `references/typst-cli-reference.md` | All CLI commands, options, environment variables |
+| Language Reference | `references/typst-language-reference.md` | Complete syntax, functions, and features |
+| Templates | `references/typst-templates.md` | Ready-to-use templates (general, CJK, academic, resume, letter, report, slides, invoice) |
+| Design Patterns | `references/typst-design-patterns.md` | Advanced patterns (themes, layouts, components, PDF capabilities) |
 
-= Introduction
-Content here...
-```
-
-### Math equations
-
-```typst
-$ integral_0^infinity e^(-x^2) dif x = sqrt(pi) / 2 $
-```
-
-### Including external data
-
-```typst
-#let data = json("data.json")
-#let records = csv("data.csv")
-```
-
-### Using packages
-
-```typst
-#import "@preview/cetz:0.3.4": canvas, draw
-#import "@preview/tablex:0.0.9": tablex
-```
-
-## Advanced design patterns
-
-### Theme system (cascading defaults)
-
-Use a dictionary-based theme with a fallback helper for customizable templates:
-
-```typst
-#let default-theme = (
-  margin: 26pt,
-  font: "Libre Baskerville",
-  font-size: 8pt,
-  font-secondary: "Roboto",
-  font-tertiary: "Montserrat",
-  text-color: rgb("#3f454d"),
-)
-
-#let my-template(theme: (), body) = {
-  let th(key) = if key in theme { theme.at(key) } else { default-theme.at(key) }
-  set text(font: th("font"), size: th("font-size"), fill: th("text-color"))
-  body
-}
-```
-
-### Scope-based show rules
-
-Nest `show` rules inside blocks to apply styling only within a specific scope:
-
-```typst
-{
-  show heading: set text(size: 26pt, weight: "regular")
-  show heading: set block(above: 3pt, below: 0pt)
-  heading(level: 1, last-name)
-}
-// The show rules above do NOT affect content outside this block
-```
-
-### Visual hierarchy through text color
-
-Use `text.fill.lighten()` inside `context` blocks for secondary/tertiary text:
-
-```typst
-context {
-  set text(weight: "light", fill: text.fill.lighten(30%))
-  timeframe   // renders lighter than surrounding text
-}
-```
-
-### Multi-column layout with grid
-
-Use fractional units for responsive sidebar + main layouts:
-
-```typst
-#grid(
-  columns: (3fr, 26pt, 6fr),  // aside, gutter, main
-  aside-content,
-  [],  // empty gutter
-  main-content,
-)
-```
-
-### Circular profile pictures
-
-```typst
-{
-  set block(radius: 100%, clip: true, above: 1fr, below: 1fr)
-  set align(center)
-  set image(width: 55%)
-  image("photo.jpg")
-}
-```
-
-### Modular component functions
-
-Build reusable entry components for structured documents (resumes, reports):
-
-```typst
-#let work-entry(timeframe: "", title: "", organization: "", body) = {
-  stack(dir: ltr, spacing: 1fr,
-    context { set text(weight: "light", fill: text.fill.lighten(30%)); timeframe },
-    context { set text(weight: "light", fill: text.fill.lighten(30%)); location },
-  )
-  { set text(weight: "bold"); upper(title) } + " – " + organization
-  line(stroke: 0.1pt, length: 100%)
-  body
-}
-```
-
-### Custom fonts with `--font-path`
-
-When using non-system fonts, bundle them and compile with:
-
-```bash
-typst compile --font-path ./fonts document.typ
-```
-
-## PDF output capabilities
-
-Typst's PDF backend (powered by `pdf-writer`) supports:
-- **PDF standards**: PDF 1.4–2.0, PDF/A-1b through PDF/A-4e, PDF/UA-1
-- **Tagged PDF**: Accessible documents with structure tags (enabled by default)
-- **Color spaces**: RGB, CMYK, grayscale, ICC profiles, Lab color, spot colors
-- **Fonts**: Full Unicode/CJK support via composite fonts (Type0 + CID)
-- **Advanced graphics**: Transparency, blending modes, soft masks, gradients
-- **Interactive elements**: Clickable links, annotations
-- **Reproducible builds**: Use `SOURCE_DATE_EPOCH` for deterministic output
-
-## Reference documentation
-
-For detailed information, consult these reference files (read them when needed):
-
-- **CLI Reference**: `references/typst-cli-reference.md` — All CLI commands, options, and environment variables
-- **Language Reference**: `references/typst-language-reference.md` — Complete language syntax, functions, and features
-- **Templates**: `references/typst-templates.md` — Ready-to-use document templates (general, Chinese, academic, resume, letter, report, slides, invoice)
-
-## Output formats
+## Output Formats
 
 | Format | Extension | Notes |
 |--------|-----------|-------|
-| PDF    | `.pdf`    | Default. Supports PDF/A standards and tagged PDF. |
-| PNG    | `.png`    | One image per page. Use `--ppi` for resolution. |
-| SVG    | `.svg`    | One file per page. Vector graphics. |
-| HTML   | `.html`   | Experimental. Use `--features html`. |
+| PDF | `.pdf` | Default. Supports PDF/A standards and tagged PDF. |
+| PNG | `.png` | One image per page. Use `--ppi` for resolution (default 144). |
+| SVG | `.svg` | One file per page. Vector graphics. |
+| HTML | `.html` | Experimental. Use `--features html`. |

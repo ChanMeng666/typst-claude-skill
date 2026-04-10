@@ -49,11 +49,18 @@ cargo install typst-cli
 
 ```
 ~/.claude/skills/typst/
-├── SKILL.md                          # Main skill file (triggers, workflow, best practices)
-└── references/
-    ├── typst-cli-reference.md        # Complete CLI reference (v0.14.2)
-    ├── typst-language-reference.md   # Language syntax and features reference
-    └── typst-templates.md            # Ready-to-use document templates
+├── SKILL.md                              # Main skill file (workflow, quick reference, gotchas)
+├── references/
+│   ├── typst-cli-reference.md            # Complete CLI reference (v0.14.2)
+│   ├── typst-language-reference.md       # Language syntax and features reference
+│   ├── typst-templates.md                # Ready-to-use document templates
+│   └── typst-design-patterns.md          # Advanced design patterns (themes, layouts, components)
+├── scripts/
+│   └── verify-typst.sh                   # Environment verification script
+└── examples/
+    ├── hello-world.typ                   # Minimal document example
+    ├── cjk-document.typ                  # Chinese document with proper font setup
+    └── resume-basic.typ                  # Simple resume example
 ```
 
 ## Usage
@@ -69,6 +76,14 @@ Once installed, the skill activates automatically when you ask Claude Code to ge
 ```
 
 You can also invoke it explicitly with `/typst`.
+
+## Examples
+
+The `examples/` directory contains minimal, self-contained `.typ` files that compile without external dependencies:
+
+- **hello-world.typ** — Basic document setup with headings, math, and lists
+- **cjk-document.typ** — Chinese document with proper font fallback chain
+- **resume-basic.typ** — Simple one-page resume with reusable component functions
 
 ## Templates Included
 
