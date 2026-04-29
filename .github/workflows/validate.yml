@@ -29,9 +29,9 @@ jobs:
       - name: Validate SKILL.md frontmatter
         run: |
           set -e
-          head -20 SKILL.md | grep -E '^name: typst$' >/dev/null
-          head -20 SKILL.md | grep -E '^description: ' >/dev/null
-          head -20 SKILL.md | grep -E '^allowed-tools: ' >/dev/null
+          head -20 skills/typst/SKILL.md | grep -E '^name: typst$' >/dev/null
+          head -20 skills/typst/SKILL.md | grep -E '^description: ' >/dev/null
+          head -20 skills/typst/SKILL.md | grep -E '^allowed-tools: ' >/dev/null
           echo "SKILL.md frontmatter OK"
 
       - name: Validate plugin.json
@@ -47,11 +47,11 @@ jobs:
         run: |
           set -e
           mkdir -p /tmp/typst-out
-          for f in examples/*.typ; do
+          for f in skills/typst/examples/*.typ; do
             echo "compiling $f"
             typst compile "$f" "/tmp/typst-out/$(basename "$f" .typ).pdf"
           done
           ls -la /tmp/typst-out
 
       - name: Run verify-typst.sh
-        run: bash scripts/verify-typst.sh
+        run: bash skills/typst/scripts/verify-typst.sh

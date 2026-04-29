@@ -41,35 +41,39 @@ Verify with `typst --version` (should print v0.14 or newer).
 
 Pick **one** of the four methods below. They are equivalent in capability — choose by your environment.
 
-### Method 1 — Git clone (recommended for most users)
+### Method 1 — Claude Code plugin marketplace (recommended)
 
-Clones this repo directly into Claude Code's user-level skills directory. One command, works on macOS / Linux / Windows (Git Bash or WSL):
-
-```bash
-git clone https://github.com/ChanMeng666/typst-claude-skill.git ~/.claude/skills/typst
-```
-
-> Windows PowerShell users: replace `~` with `$env:USERPROFILE`, so the destination is `$env:USERPROFILE\.claude\skills\typst`.
-
-### Method 2 — Claude Code plugin marketplace
-
-Inside Claude Code, run:
+Inside Claude Code, run two commands:
 
 ```text
 /plugin marketplace add ChanMeng666/typst-claude-skill
 /plugin install typst@chan-typst
 ```
 
-Auto-updates when the plugin's `version` field bumps. The marketplace name (`chan-typst`) and plugin name (`typst`) are declared in `.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json` respectively.
+Auto-updates when the plugin's `version` field in `.claude-plugin/plugin.json` bumps. The marketplace name (`chan-typst`) and plugin name (`typst`) are declared in `.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json` respectively.
+
+### Method 2 — Git clone (for users who want to hack on the skill)
+
+The repo's actual skill content lives at `skills/typst/` (so the plugin marketplace path can pick it up). To install via direct clone, copy that subdirectory into your user-level skills folder:
+
+```bash
+# macOS / Linux / Windows (Git Bash or WSL)
+git clone --depth 1 https://github.com/ChanMeng666/typst-claude-skill.git /tmp/_typst-src \
+  && mv /tmp/_typst-src/skills/typst ~/.claude/skills/typst \
+  && rm -rf /tmp/_typst-src
+```
+
+> Windows PowerShell users: replace `~` with `$env:USERPROFILE`, so the destination is `$env:USERPROFILE\.claude\skills\typst`. Use `Move-Item` instead of `mv` and `Remove-Item -Recurse` instead of `rm -rf`.
 
 ### Method 3 — Manual ZIP
 
 For users without Git:
 
-1. Visit <https://github.com/ChanMeng666/typst-claude-skill>, click **Code → Download ZIP**.
+1. Visit [`github.com/ChanMeng666/typst-claude-skill`](https://github.com/ChanMeng666/typst-claude-skill), click **Code → Download ZIP**.
 2. Extract the archive.
-3. Move and rename the extracted folder to `~/.claude/skills/typst` (macOS / Linux) or `%USERPROFILE%\.claude\skills\typst` (Windows).
-4. Confirm `SKILL.md` exists at the top of that folder.
+3. Inside the extracted folder, navigate to `skills/typst/` — that subdirectory **is** the skill.
+4. Move and rename `skills/typst/` to `~/.claude/skills/typst` (macOS / Linux) or `%USERPROFILE%\.claude\skills\typst` (Windows).
+5. Confirm `SKILL.md` exists at the top of that destination folder.
 
 ### Method 4 — Project-level (per-project)
 
@@ -77,15 +81,23 @@ Use this when the skill should be available **only** inside one project (e.g. yo
 
 ```bash
 # Run from the project root
-mkdir -p .claude/skills
-git clone https://github.com/ChanMeng666/typst-claude-skill.git .claude/skills/typst
+git clone --depth 1 https://github.com/ChanMeng666/typst-claude-skill.git /tmp/_typst-src \
+  && mkdir -p .claude/skills \
+  && mv /tmp/_typst-src/skills/typst .claude/skills/typst \
+  && rm -rf /tmp/_typst-src
 ```
 
 The skill is now active whenever Claude Code runs from this project directory and is silent everywhere else.
 
 ## Verify your installation
 
-After installing by **any** method, run the bundled environment check:
+After installing by **any** method, run the bundled environment check.
+
+For **Method 1** (plugin marketplace), Claude Code installs the plugin to its cache; ask Claude Code:
+
+> Run `bash $CLAUDE_PLUGIN_ROOT/scripts/verify-typst.sh` for the typst plugin.
+
+For **Methods 2, 3, 4** (skill copied into `~/.claude/skills/typst/` or `.claude/skills/typst/`):
 
 ```bash
 bash ~/.claude/skills/typst/scripts/verify-typst.sh
@@ -112,31 +124,46 @@ If Claude reports `typst`, the skill is loaded.
 
 ## File Structure
 
-If installed via Method 1, 3, or 4, this is the layout you'll see (under `~/.claude/skills/typst/` or `.claude/skills/typst/`):
+### Repo layout (what you see on GitHub / after `git clone`)
 
 ```
-typst/
-├── SKILL.md                              # Main skill file (workflow, decision tree, gotchas, recovery)
-├── references/
-│   ├── typst-cli-reference.md            # Complete CLI reference (v0.14)
-│   ├── typst-language-reference.md       # Language syntax and features reference
-│   ├── typst-templates.md                # 9 ready-to-use document templates
-│   └── typst-design-patterns.md          # Advanced design patterns (themes, layouts, components)
-├── scripts/
-│   └── verify-typst.sh                   # Environment verification script
-├── examples/
-│   ├── hello-world.typ                   # Minimal document example
-│   ├── cjk-document.typ                  # Chinese document with proper font setup
-│   └── resume-basic.typ                  # Simple resume example
-├── .claude-plugin/                       # Plugin metadata (used only by Method 2)
-│   ├── plugin.json
-│   └── marketplace.json
+typst-claude-skill/
+├── .claude-plugin/
+│   ├── plugin.json                       # Plugin manifest (used by Method 1)
+│   └── marketplace.json                  # Marketplace catalog
+├── .github/workflows/validate.yml        # CI: validates frontmatter, compiles examples
+├── skills/
+│   └── typst/                            # ← THE SKILL ITSELF
+│       ├── SKILL.md                      # Main skill file (workflow, decision tree, gotchas, recovery)
+│       ├── references/                   # Loaded on demand by Claude Code
+│       │   ├── typst-cli-reference.md
+│       │   ├── typst-language-reference.md
+│       │   ├── typst-templates.md
+│       │   └── typst-design-patterns.md
+│       ├── scripts/
+│       │   └── verify-typst.sh           # Environment verification
+│       └── examples/
+│           ├── hello-world.typ
+│           ├── cjk-document.typ
+│           └── resume-basic.typ
 ├── README.md
 ├── CHANGELOG.md
 └── LICENSE
 ```
 
-If installed via Method 2 (plugin marketplace), files live under `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` instead — Claude Code resolves paths automatically; you do not need to know the exact location.
+### Installed layout (what the skill loader sees)
+
+For **Method 1 (plugin marketplace)**: files live under `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/skills/typst/` — Claude Code resolves paths automatically; you do not need to know the exact location.
+
+For **Methods 2, 3, 4 (clone-and-move / ZIP / per-project)**: only the `skills/typst/` subdirectory is moved to your skills folder, so the resulting layout is flat:
+
+```
+~/.claude/skills/typst/  (or .claude/skills/typst/ for Method 4)
+├── SKILL.md
+├── references/…
+├── scripts/verify-typst.sh
+└── examples/…
+```
 
 ## Usage
 

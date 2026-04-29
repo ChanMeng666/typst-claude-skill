@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-04-29
+
+### Changed (breaking for direct-clone users)
+- **Repository restructured**: skill content moved from repo root into `skills/typst/`. The plugin manifest now relies on Claude Code's default skill auto-discovery (which expects `skills/<name>/SKILL.md`) instead of the previously documented but unimplemented `"skills": ["./"]` form.
+- **Direct git-clone install command changed**: `git clone … ~/.claude/skills/typst` no longer puts `SKILL.md` at the right place; the canonical clone now needs `mv` after clone (or sparse-checkout). The plugin marketplace install path (`/plugin marketplace add` → `/plugin install typst@chan-typst`) is now the recommended primary route.
+
+### Why
+Live-tested the v0.2.1 plugin install on Claude Code 2.1.123: the install succeeded but the plugin failed to load with `Error: Path escapes plugin directory: ./ (skills)`. The docs at <https://code.claude.com/docs/en/plugins-reference#path-behavior-rules> document `"skills": ["./"]` as a supported pattern ("the frontmatter `name` field in `SKILL.md` determines the skill's invocation name"), but the runtime path-traversal guard in 2.1.123 rejects `./` as an escape attempt. Until that runtime issue is fixed upstream, we ship the canonical layout (`skills/<name>/SKILL.md`) that every documentation example demonstrates.
+
+### Migration for existing direct-clone users
+If you already installed v0.1.0 / 0.2.x via `git clone … ~/.claude/skills/typst`, **do NOT `git pull`** — that would replace your `SKILL.md` with the new directory layout and break the skill. Instead, re-do the install from scratch:
+
+```bash
+rm -rf ~/.claude/skills/typst
+# Then follow the new Method 1 in the README (clone-and-move).
+```
+
+Or switch to the plugin marketplace path, which is now the simpler option.
+
 ## [0.2.1] — 2026-04-29
 
 ### Changed
