@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "typst",
+  "version": "0.2.0",
+  "description": "Generate professional PDFs (CVs, cover letters, papers, reports, slides, invoices) via the Typst typesetting system. Strong CJK (Chinese / Japanese / Korean) support.",
+  "author": {
+    "name": "Chan Meng",
+    "email": "ai@gavigo.com",
+    "url": "https://github.com/ChanMeng666"
+  },
+  "homepage": "https://github.com/ChanMeng666/typst-claude-skill",
+  "repository": "https://github.com/ChanMeng666/typst-claude-skill",
+  "license": "MIT",
+  "keywords": [
+    "typst",
+    "pdf",
+    "cv",
+    "resume",
+    "cover-letter",
+    "cjk",
+    "academic-paper",
+    "presentation",
+    "invoice",
+    "document-generation"
+  ],
+  "skills": ["./"]
+}

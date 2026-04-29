@@ -1,0 +1,57 @@
+name: validate
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo / typst-cli
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/typst
+            ~/.cargo/registry
+          key: ${{ runner.os }}-typst-cli-v0.14
+
+      - name: Install Typst CLI (if not cached)
+        run: |
+          if ! command -v typst >/dev/null; then
+            cargo install --locked typst-cli
+          fi
+          typst --version
+
+      - name: Validate SKILL.md frontmatter
+        run: |
+          set -e
+          head -20 SKILL.md | grep -E '^name: typst$' >/dev/null
+          head -20 SKILL.md | grep -E '^description: ' >/dev/null
+          head -20 SKILL.md | grep -E '^allowed-tools: ' >/dev/null
+          echo "SKILL.md frontmatter OK"
+
+      - name: Validate plugin.json
+        run: |
+          python3 -c "import json; json.load(open('.claude-plugin/plugin.json'))"
+          python3 -c "import json; m=json.load(open('.claude-plugin/plugin.json')); assert m['name']=='typst', 'plugin name mismatch'; print('plugin.json OK')"
+
+      - name: Validate marketplace.json
+        run: |
+          python3 -c "import json; m=json.load(open('.claude-plugin/marketplace.json')); assert 'plugins' in m and len(m['plugins'])>=1, 'plugins array missing'; print('marketplace.json OK')"
+
+      - name: Compile every example
+        run: |
+          set -e
+          mkdir -p /tmp/typst-out
+          for f in examples/*.typ; do
+            echo "compiling $f"
+            typst compile "$f" "/tmp/typst-out/$(basename "$f" .typ).pdf"
+          done
+          ls -la /tmp/typst-out
+
+      - name: Run verify-typst.sh
+        run: bash scripts/verify-typst.sh

@@ -1,0 +1,17 @@
+{
+  "name": "chan-typst",
+  "description": "Chan Meng's Claude Code skills — currently a single Typst document-generation plugin.",
+  "owner": {
+    "name": "Chan Meng",
+    "email": "ai@gavigo.com"
+  },
+  "plugins": [
+    {
+      "name": "typst",
+      "source": "./",
+      "description": "Generate professional PDFs (CVs, cover letters, papers, reports, slides, invoices) via the Typst typesetting system. Strong CJK support.",
+      "category": "document-generation",
+      "tags": ["typst", "pdf", "cv", "resume", "cover-letter", "cjk", "academic-paper", "presentation"]
+    }
+  ]
+}
