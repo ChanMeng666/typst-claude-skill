@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-04-29
+
+### Changed
+- `examples/cjk-document.typ` font fallback chain reordered to put `SimSun` (Windows native) first, with `Microsoft YaHei`, `Source Han Serif SC`, and `Noto Serif CJK SC` as the rest of the chain. Same four fonts as before — but Windows students now see their OS's pre-installed font used as the actual rendered glyphs.
+- `examples/cjk-document.typ` Chinese explanatory paragraph rewritten to clarify that `unknown font family` warnings from Typst are informational ("this font is missing, trying the next one") rather than errors; the PDF is valid as long as one name in the chain matches.
+
+### Why
+Caught during the v0.2.0 acceptance run on Windows: the original chain put `Source Han Serif SC` first, which Typst tries first, fails to find on a stock Windows install, warns, then falls back to `SimSun` and renders fine. The PDF was always correct, but a first-time student facing 2 warning lines on their first compile understandably wondered if something was broken. The reorder doesn't eliminate the warnings — Typst warns once per missing font name regardless of fallback success — but it puts the OS-native font at the head of the chain so the student's mental model ("font I have at home is the one being used") matches reality.
+
 ## [0.2.0] — 2026-04-29
 
 ### Added
